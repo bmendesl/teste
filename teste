@@ -391,3 +391,25 @@ import-module activedirectory
 
 
 https://docs.microsoft.com/en-us/powershell/module/addsadministration/get-adprincipalgroupmembership?view=win10-ps
+==================================================================================================================
+
+
+https://itknowledgeexchange.techtarget.com/powershell/comparing-group-membership/
+
+$group1 = Get-ADGroupMember -Identity ADL-group1 | select SamAccountName            
+            
+$group2 = Get-ADGroupMember -Identity ADL-group2 | select SamAccountName            
+            
+Compare-Object -ReferenceObject $group1 -DifferenceObject $group2 -IncludeEqual |             
+where SideIndicator -eq "==" |            
+foreach {            
+ $sam = ($_.InputObject).SamAccountName             
+             
+ Get-ADUser -Identity $sam -Properties *            
+            
+}
+
+
+
+==================================================================================================================
+https://stackoverflow.com/questions/349822/ad-group-comparison-powershell
