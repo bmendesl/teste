@@ -1,0 +1,393 @@
+comparing AD
+
+https://ravingroo.com/1030/powershell-compare-membership-of-two-active-directory-groups/
+
+diff (Get-ADGroupMember "Group 1") (Get-ADGroupMember "Group 2") -Property 'SamAccountName' -IncludeEqual
+
+SamAccountName SideIndicator
+-------------- -------------
+USER1          ==
+USER2          =>
+USER3          =>
+USER4          =>
+USER5          <=
+USER6          <=
+
+== This user is in both groups.
+=> This user is in the second group.
+<= This user is in the first group.
+
+==================================================================================================================
+
+https://4sysops.com/archives/compare-active-directory-group-membership-with-powershell/
+
+PS C:\> $a= Get-ADGroupMember GroupA
+PS C:\> $a | Select name
+ 
+name
+----
+Ahmad Castelum
+Amber Kasey
+Alexis Hembrey
+Andra Papallo
+Anderson Lefurgy
+ 
+PS C:\> $b = Get-ADGroupMember GroupB
+PS C:\> $b| Select name
+ 
+name
+----
+Catherina Olexy
+Amber Kasey
+Bettina Tamburri
+Berry Tototzintle
+Ashley Abramian
+Andra Papallo
+Anderson Lefurgy
+
+
+PS C:\> compare-object $a $b
+ 
+InputObject                             SideIndicator
+-----------                             -------------
+CN=Catherina Olexy,OU=Demo,OU=Employ... =>
+CN=Bettina Tamburri,OU=Demo,OU=Emplo... =>
+CN=Berry Tototzintle,OU=Demo,OU=Empl... =>
+CN=Ashley Abramian,OU=Demo,OU=Employ... =>
+CN=Ahmad Castelum,OU=Demo,OU=Employe... <=
+CN=Alexis Hembrey,OU=Demo,OU=Employe... <=
+
+
+
+- Here, $a is the reference object and $b is the difference object. The SideIndicator shows which object only belongs in a particular group. In this example, the displayed inputobject makes it pretty clear which user account belongs to which group. But you can fine tune the comparison by specifying a property name.
+
+PS C:\> compare-object $a $b -Property name
+ 
+name                                    SideIndicator
+----                                    -------------
+Catherina Olexy                         =>
+Bettina Tamburri                        =>
+Berry Tototzintle                       =>
+Ashley Abramian                         =>
+Ahmad Castelum                          <=
+Alexis Hembrey                          <=
+
+
+- find users in Group A that are also in Group B
+
+PS C:\> $a.name | where {$b.name -contains $psitem}
+Amber Kasey
+Andra Papallo
+Anderson Lefurgy
+
+
+
+
+==================================================================================================================
+
+
+Get-ADGroupsDifference -ReferenceUser XXXX -User YYYY | Where { $_.SideIndicator -eq -1 } | ForEach { Add-ADGroupMember -Identity $_.GroupDistinguishedName -Members $_.User }
+
+
+
+==================================================================================================================
+
+
+
+https://adamtheautomator.com/compare-powershell-arrays/
+
+$array = @('blue','red','purple','pink')
+$array2 = @('brown','red','black','yellow')
+
+$array | ForEach-Object {
+    if ($array2 -contains $_) {
+        Write-Host "`$array2 contains the `$array1 string [$_]"
+    }
+}
+
+
+==================================================================================================================
+
+
+MENU
+
+function Show-Menu {
+    param (
+        [string]$Title = 'My Menu'
+    )
+    Clear-Host
+    Write-Host "================ $Title ================"
+    
+    Write-Host "1: Press '1' for this option."
+    Write-Host "2: Press '2' for this option."
+    Write-Host "3: Press '3' for this option."
+    Write-Host "4: Press '3' for this option."
+    Write-Host "5: Press '3' for this option."
+    Write-Host "Q: Press 'Q' to quit."
+}
+
+
+ function option1
+ {
+    cls
+    'You chose option #1'
+ }
+
+ function option2
+ {
+    cls
+    'You chose option #2'
+ }
+
+ function option3
+ {
+    cls
+    'You chose option #3'
+ }
+
+ function option4
+ {
+    cls
+    'You chose option #4'
+ }
+
+  function option5
+ {
+    cls
+    'You chose option #5'
+ }
+
+do
+ {
+    Show-Menu
+    $selection = Read-Host "Please make a selection"
+    switch ($selection)
+    {
+        '1' 
+        {
+            option1
+        } 
+        '2' 
+        {
+            option2
+        } 
+        '3' 
+        {
+            option3
+        }
+        '4' 
+        {
+            option4
+        } 
+        '5' 
+        {
+            option5
+        }
+        'q'
+        {}
+        default {"Opção inválida! Selecione uma opção valida ou pressione 'Q\q' para sair!"; break}
+    }
+    pause
+ }
+ until ($selection -eq 'q')
+
+
+==================================================================================================================
+
+http://www.leporelo.eu/blog.aspx?id=back-to-powershell-basics-compare-arrays
+
+
+
+==================================================================================================================
+
+MENU_COLORIDO
+
+# Menu system using functions
+#
+# AUTHOR: Andrew Morpeth
+# DATE: 2013 
+# VERSION: 1.0
+#
+# This script is provided as-is, no warrenty is provided or implied.The author is NOT responsible for any damages or data loss that may occur
+# through the use of this script.  Always test before using in a production environment. This script is free to use for both personal and 
+# business use, however, it may not be sold or included as part of a package that is for sale. A Service Provider may include this script 
+# as part of their service offering/best practices provided they only charge for their time to implement and support.
+#
+ 
+Function Menu ($MenuStart, $MenuEnd, $MenuName, $MenuFunctionName, $MenuOption1, $MenuFunction1, $MenuOption2, $MenuFunction2, $MenuOption3, $MenuFunction3, $MenuOption4, $MenuFunction4, $MenuOption5, $MenuFunction5, $MenuOption6, $MenuFunction6, $MenuOption7, $MenuFunction7, $MenuOption8, $MenuFunction8, $MenuOption9, $MenuFunction9, $MenuOption10, $MenuFunction10)
+{
+        Write-Host “`n$MenuName`n” -Fore Magenta;
+        if($MenuOption1 -ne $null){Write-Host “`t`t$MenuOption1” -Fore Green;}
+        if($MenuOption2 -ne $null){Write-Host “`t`t$MenuOption2” -Fore Green;}
+        if($MenuOption3 -ne $null){Write-Host “`t`t$MenuOption3” -Fore Green;}
+        if($MenuOption4 -ne $null){Write-Host “`t`t$MenuOption4” -Fore Green;}
+        if($MenuOption5 -ne $null){Write-Host “`t`t$MenuOption5” -Fore Green;}
+        if($MenuOption6 -ne $null){Write-Host “`t`t$MenuOption6” -Fore Green;}
+        if($MenuOption7 -ne $null){Write-Host “`t`t$MenuOption7” -Fore Green;}
+        if($MenuOption8 -ne $null){Write-Host “`t`t$MenuOption8” -Fore Green;}
+        if($MenuOption9 -ne $null){Write-Host “`t`t$MenuOption9” -Fore Green;}
+        if($MenuOption10 -ne $null){Write-Host “`t`t$MenuOption9” -Fore Green;}
+       [int]$MenuOption = Read-Host “`n`t`tPlease select an option”
+            
+            if(($MenuOption -lt $MenuStart) -or ($MenuOption -gt $MenuEnd))
+            {
+            Write-Host “`t`nPlease select one of the options available.`n” -Fore Red;start-Sleep -Seconds 1
+            Invoke-Expression $MenuFunctionName
+            }
+            else
+            {
+                if($MenuOption -eq $MenuStart) {Invoke-Expression $MenuFunction1}
+                if($MenuOption -eq ($MenuStart + "1")) {Invoke-Expression $MenuFunction2}
+                if($MenuOption -eq ($MenuStart + "2")) {Invoke-Expression $MenuFunction3}   
+                if($MenuOption -eq ($MenuStart + "3")) {Invoke-Expression $MenuFunction4} 
+                if($MenuOption -eq ($MenuStart + "4")) {Invoke-Expression $MenuFunction5} 
+                if($MenuOption -eq ($MenuStart + "5")) {Invoke-Expression $MenuFunction6} 
+                if($MenuOption -eq ($MenuStart + "6")) {Invoke-Expression $MenuFunction7} 
+                if($MenuOption -eq ($MenuStart + "7")) {Invoke-Expression $MenuFunction8}
+                if($MenuOption -eq ($MenuStart + "8")) {Invoke-Expression $MenuFunction9} 
+                if($MenuOption -eq ($MenuStart + "9")) {Invoke-Expression $MenuFunction10}
+            }    
+}
+#MENU OPTIONS: Space seperated list - 
+#Menu option start number, Menu option end number, Menus descriptive name, Menus function name,
+#Menu option 1, Option 1 action (specify exisiting menu or other function), option 2, option 2 action and so on up to 10 options.
+#
+#E.G 
+# function MENU_HOME #Wrap menu in function so that you can call it from anywhere to get back
+# {
+# Menu 1 3 "Menu Home" MENU_HOME "1. Go to menu home one" MENU_HOME_ONE "2. Go to menu home two" MENU_HOME_TWO "3. Do stuff" MENU_HOME_DOSTUFF #Invokes menu builder function and passes variables
+# } 
+# MENU_HOME #Runs function
+#
+#Remember that powershell is processed line by line so functions need to be above where they are called. This gets trickier and trickier the more complicated your menu gets :)
+#
+ 
+ 
+###MENU_HOME
+###############################################################################################################################################################################################################################
+ 
+function MENU_HOME
+{
+    Menu 1 3 "Menu Home" MENU_HOME "1. Go to menu home one" MENU_HOME_ONE "2. Go to menu home two" MENU_HOME_TWO "3. Do stuff" MENU_HOME_DOSTUFF
+}   
+ 
+###MENU_HOME_ONE
+###############################################################################################################################################################################################################################
+ 
+function MENU_HOME_ONE
+{
+    Menu 1 2 "Menu Home - One" MENU_HOME_ONE "1. Do stuff" MENU_HOME_DOSTUFF "2. Exit" MENU_HOME
+}   
+ 
+###MENU_HOME_TWO
+###############################################################################################################################################################################################################################
+ 
+function MENU_HOME_TWO
+{
+    Menu 1 2 "Menu Home - One" MENU_HOME_ONE "1. Do stuff" MENU_HOME_DOSTUFF "2. Exit" MENU_HOME
+}  
+ 
+###MENU_HOME_DOSTUFF
+###############################################################################################################################################################################################################################
+ 
+function MENU_HOME_DOSTUFF
+{
+    cls
+    write-host "I like to do stuff!!"
+    MENU_HOME
+}  
+ 
+MENU_HOME
+
+
+
+==================================================================================================================
+https://dotnet-helpers.com/powershell/compare-two-files-list-differences/
+
+Clear-Host
+$strReference = Get-Content "C:\Users\RAISSA\Desktop\Antes.txt"
+$strDifference = Get-Content "C:\Users\RAISSA\Desktop\Depois.txt"
+Compare-Object $strReference $strDifference
+
+
+==================================================================================================================
+
+https://gallery.technet.microsoft.com/Compare-Members-of-two-2d6d3e02
+
+ This function compares the members of one group with the members of another. The comparison can be performed on objects that inherit from this group with the recursive mode
+
+  This function used the get-adgroupmember command result in recursive mode or not.   
+
+   It returns a table indicating the LDAP name of the objects as well as whether they are members of one or both groups.        It requires the ActiveDirectory PowerShell module   
+
+No recursive mode :
+
+.\Compare-ADGroup.ps1 -FirstGroup "SDL-CT-Partage-Info" -SecondGroup "SG-Service-Technique" -Recursive $False | fl
+
+
+UserDn   : CN=SG-Service-Informatique,OU=Securite_global,OU=Groupes,DC=htrab,DC=lan
+
+MemberOf : OnlyFirst
+
+ 
+
+UserDn   : CN=Philippe BARTH,OU=Utilisateurs,DC=htrab,DC=lan
+
+MemberOf : OnlySecond
+
+ 
+
+UserDn   : CN=Pierre Durand,OU=Utilisateurs,DC=htrab,DC=lanMemberOf : OnlySecond
+
+ 
+
+Same group in recursive mode :
+
+.\Compare-ADGroup.ps1 -FirstGroup "SDL-CT-Partage-Info" -SecondGroup "SG-Service-Technique" -Recursive $True
+
+ 
+
+UserDn   : CN=Patrick Dupond,OU=Utilisateurs,DC=htrab,DC=lan   
+
+MemberOf : OnlyFirst
+
+ 
+
+UserDn   : CN=Philippe BARTH,OU=Utilisateurs,DC=htrab,DC=lan   
+
+MemberOf : Both
+
+ 
+
+
+UserDn   : CN=Pierre Durand,OU=Utilisateurs,DC=htrab,DC=lan   
+
+MemberOf : OnlySecond
+
+ 
+
+This example give the inherited member of the both group 
+
+.\Compare-ADGroup.ps1 -FirstGroup "SDL-CT-Partage-Info" -SecondGroup "SG-Service-Technique" -Recursive $True | Where { $_.memberof -eq "Both" }
+
+
+UserDn                              
+MemberOf                                        
+
+CN=Philippe BARTH,OU=Utilisateurs,DC=htrab,DC=lan
+Both
+
+
+==================================================================================================================
+
+https://mitch.codes/powershell-compare-ad-group-membership/
+
+
+Compare-Object -ReferenceObject (Get-AdPrincipalGroupMembership newUser | select name | sort-object -Property name) -DifferenceObject (Get-AdPrincipalGroupMembership existingUser | select name | sort-object -Property name) -property name -passthru
+import-module activedirectory
+
+
+==================================================================================================================
+
+
+https://docs.microsoft.com/en-us/powershell/module/addsadministration/get-adprincipalgroupmembership?view=win10-ps
